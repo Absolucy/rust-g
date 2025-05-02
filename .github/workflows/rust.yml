@@ -22,12 +22,12 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - name: Build (release) (default features)
-        run: cargo build -Z build-std --target i686-win7-windows-msvc --locked --release
+        run: cargo build -Z build-std --target i686-pc-windows-msvc --locked --release
 
       - uses: actions/upload-artifact@v4
         with:
           name: Windows Build
           path: |
-            target/i686-win7-windows-msvc/release/rust_g.dll
-            target/i686-win7-windows-msvc/release/rust_g.pdb
+            target/i686-pc-windows-msvc/release/rust_g.dll
+            target/i686-pc-windows-msvc/release/rust_g.pdb
             target/rust_g.dm
