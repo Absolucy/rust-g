@@ -3,9 +3,11 @@ on:
   push:
     branches:
       - master
+      - just-so-this-compiles
   pull_request:
     branches:
       - master
+      - just-so-this-compiles
 jobs:
   build-windows:
     runs-on: windows-latest
