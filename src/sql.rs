@@ -32,7 +32,7 @@ struct ConnectOptions {
     max_threads: Option<usize>,
 }
 
-byond_fn!(fn sql_connect_pool(options) {
+byond_fn!(unwind fn sql_connect_pool(options) {
     let options = match serde_json::from_str::<ConnectOptions>(options) {
         Ok(options) => options,
         Err(e) => return Some(err_to_json(e)),
@@ -43,14 +43,14 @@ byond_fn!(fn sql_connect_pool(options) {
     })
 });
 
-byond_fn!(fn sql_query_blocking(handle, query, params) {
+byond_fn!(unwind fn sql_query_blocking(handle, query, params) {
     Some(match do_query(handle, query, params) {
         Ok(o) => o.to_string(),
         Err(e) => err_to_json(e)
     })
 });
 
-byond_fn!(fn sql_query_async(handle, query, params) {
+byond_fn!(unwind fn sql_query_async(handle, query, params) {
     let handle = handle.to_owned();
     let query = query.to_owned();
     let params = params.to_owned();
@@ -63,7 +63,7 @@ byond_fn!(fn sql_query_async(handle, query, params) {
 });
 
 // hopefully won't panic if queries are running
-byond_fn!(fn sql_disconnect_pool(handle) {
+byond_fn!(unwind fn sql_disconnect_pool(handle) {
     let handle = match handle.parse::<usize>() {
         Ok(o) => o,
         Err(e) => return Some(err_to_json(e)),

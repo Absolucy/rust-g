@@ -7,6 +7,7 @@ use std::{
     fs::OpenOptions,
     io::Write,
     os::raw::{c_char, c_int},
+    panic::UnwindSafe,
     slice,
     sync::Once,
 };
@@ -51,8 +52,31 @@ pub fn byond_return(value: Option<Vec<u8>>) -> *const c_char {
     }
 }
 
+pub fn wrap_unwind<F, R>(inner: F) -> Option<Vec<u8>>
+where
+    F: FnOnce() -> Option<R> + UnwindSafe,
+    R: Into<Vec<u8>>,
+{
+    match std::panic::catch_unwind(inner) {
+        Ok(value) => value.map(Into::into),
+        Err(_err) => None,
+    }
+}
+
 #[macro_export]
 macro_rules! byond_fn {
+    (unwind fn $name:ident() $body:block) => {
+        #[no_mangle]
+        #[allow(clippy::missing_safety_doc)]
+        pub unsafe extern "C" fn $name(
+            _argc: ::std::os::raw::c_int, _argv: *const *const ::std::os::raw::c_char
+        ) -> *const ::std::os::raw::c_char {
+            $crate::byond::set_panic_hook();
+            let closure = || ($body);
+            $crate::byond::byond_return($crate::byond::wrap_unwind(closure).map(From::from))
+        }
+    };
+
     (fn $name:ident() $body:block) => {
         #[no_mangle]
         #[allow(clippy::missing_safety_doc)]
@@ -62,6 +86,28 @@ macro_rules! byond_fn {
             $crate::byond::set_panic_hook();
             let closure = || ($body);
             $crate::byond::byond_return(closure().map(From::from))
+        }
+    };
+
+    (unwind fn $name:ident($($arg:ident),* $(, ...$rest:ident)?) $body:block) => {
+        #[no_mangle]
+        #[allow(clippy::missing_safety_doc)]
+        pub unsafe extern "C" fn $name(
+            _argc: ::std::os::raw::c_int, _argv: *const *const ::std::os::raw::c_char
+        ) -> *const ::std::os::raw::c_char {
+            let __args = unsafe { $crate::byond::parse_args(_argc, _argv) };
+
+            let mut __argn = 0;
+            $(
+                let $arg: &str = __args.get(__argn).map_or("", |cow| &*cow);
+                __argn += 1;
+            )*
+            $(
+                let $rest = __args.get(__argn..).unwrap_or(&[]);
+            )?
+
+            let closure = || ($body);
+            $crate::byond::byond_return($crate::byond::wrap_unwind(closure).map(From::from))
         }
     };
 
@@ -105,16 +151,20 @@ pub fn set_panic_hook() {
                 .map(|payload| payload.to_string())
                 .or_else(|| panic_info.payload().downcast_ref::<String>().cloned())
                 .unwrap_or_else(|| "unknown panic info".to_owned());
-            println!("!!! rust-g panicked !!!\n{panic_string}\n");
-            let mut file = OpenOptions::new()
+            let backtrace_string = Backtrace::force_capture().to_string();
+            println!(
+                "!!! rust-g panicked !!!\n{panic_string}\n--- backtrace ---\n{backtrace_string}\n"
+            );
+            if let Ok(mut file) = OpenOptions::new()
                 .append(true)
                 .create(true)
                 .open("rustg-panic.log")
-                .unwrap();
-            file.write_all(panic_string.as_bytes())
-                .expect("Failed to extract error payload");
-            file.write_all(Backtrace::capture().to_string().as_bytes())
-                .expect("Failed to extract error backtrace");
+            {
+                let _ = writeln!(
+                    file,
+                    "{panic_string}\n--- backtrace ---\n{backtrace_string}\n"
+                );
+            }
         }))
     });
 }
@@ -143,3 +193,10 @@ where
         }
     }
 }
+
+/*
+byond_fn!(unwind fn panic_test() {
+    panic!("panic test");
+    Some("wtf?")
+});
+*/
