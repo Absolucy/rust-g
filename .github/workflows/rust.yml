@@ -3,9 +3,11 @@ on:
   push:
     branches:
       - master
+      - vanderlin-debug
   pull_request:
     branches:
       - master
+      - vanderlin-debug
 jobs:
   build-windows:
     runs-on: windows-latest
