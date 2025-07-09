@@ -18,6 +18,7 @@ pub mod acreplace;
 pub mod cellularnoise;
 #[cfg(feature = "dbpnoise")]
 pub mod dbpnoise;
+pub mod dhat;
 #[cfg(feature = "dice")]
 pub mod dice;
 #[cfg(feature = "dmi")]
@@ -64,8 +65,6 @@ pub mod url;
 pub mod uuid;
 #[cfg(feature = "worleynoise")]
 pub mod worleynoise;
-
-pub mod dhat;
 
 #[cfg(all(not(target_pointer_width = "32"), not(feature = "allow_non_32bit")))]
 compile_error!(
