@@ -69,6 +69,7 @@ caith = { version = "4.2.4", optional = true }
 uuid = { version = "1.17", optional = true, features = ["v4", "v7", "fast-rng"] }
 cuid2 = { version = "0.1.4", optional = true }
 dhat = "0.3"
+ctor = "0.4"
 
 [features]
 default = [

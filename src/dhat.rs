@@ -6,14 +6,25 @@ static ALLOC: dhat::Alloc = dhat::Alloc;
 
 static PROFILER: LazyLock<Mutex<Option<Profiler>>> = LazyLock::new(Mutex::default);
 
-pub fn start_dhat(path: String) {
+byond_fn!(fn start_dhat(path) {
     let mut profiler = PROFILER.lock().unwrap();
     if let Some(old_profiler) = profiler.take() {
         std::mem::drop(old_profiler);
     }
     *profiler = Some(Profiler::builder().file_name(path).build());
-}
+    Some("")
+});
 
-pub fn stop_dhat() {
-    std::mem::drop(PROFILER.lock().unwrap().take());
+byond_fn!(
+    fn stop_dhat() {
+        std::mem::drop(PROFILER.lock().unwrap().take());
+        Some("")
+    }
+);
+
+#[ctor::dtor]
+fn ensure_dhat_stopped() {
+    if let Ok(mut profiler) = PROFILER.try_lock() {
+        std::mem::drop(profiler.take());
+    };
 }
