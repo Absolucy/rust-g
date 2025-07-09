@@ -1,4 +1,5 @@
 //! Job system
+use dhat::HeapStats;
 use flume::Receiver;
 use std::{
     cell::RefCell,
@@ -62,3 +63,26 @@ pub fn start<F: FnOnce() -> Output + Send + 'static>(f: F) -> JobId {
 pub fn check(id: &str) -> String {
     JOBS.with(|jobs| jobs.borrow_mut().check(id))
 }
+
+fn debug_info() -> String {
+    JOBS.with_borrow(|jobs| {
+        let HeapStats {
+            total_blocks,
+            total_bytes,
+            curr_blocks,
+            curr_bytes,
+            max_blocks,
+            max_bytes,
+            ..
+        } = HeapStats::get();
+        let len = jobs.map.len();
+        let capacity = jobs.map.capacity();
+        format!("jobs: len={len}, capacity={capacity} | heap: total_blocks={total_blocks}, total_bytes={total_bytes}, curr_blocks={curr_blocks}, curr_bytes={curr_bytes}, max_blocks={max_blocks}, max_bytes={max_bytes}")
+    })
+}
+
+byond_fn!(
+    fn rg_debug_info() {
+        Some(debug_info())
+    }
+);

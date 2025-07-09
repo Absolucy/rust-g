@@ -16,10 +16,10 @@ rust-version = "1.81"
 crate-type = ["cdylib"]
 
 [profile.release]
-opt-level = 3
+opt-level = "s"
 codegen-units = 1
-lto = true
-debug = true
+lto = "thin"
+debug = "limited"
 
 [dependencies]
 thiserror = "2.0"
@@ -68,6 +68,7 @@ symphonia = { version = "0.5.4", optional = true, features = ["all-codecs"] }
 caith = { version = "4.2.4", optional = true }
 uuid = { version = "1.17", optional = true, features = ["v4", "v7", "fast-rng"] }
 cuid2 = { version = "0.1.4", optional = true }
+dhat = "0.3"
 
 [features]
 default = [
@@ -92,6 +93,9 @@ default = [
     "toml",
     "url",
 ]
+
+# only stuff needed for vanderlin [as far as i can tell]
+vanderlin = ["http", "sql", "log", "time", "git", "file", "dmi"]
 
 all = [
     "acreplace",
