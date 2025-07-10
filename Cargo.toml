@@ -2,7 +2,11 @@
 name = "rust-g"
 edition = "2021"
 version = "3.11.0"
-authors = ["Bjorn Neergaard <bjorn@neersighted.com>", "Tad Hardesty <tad@platymuus.com>", "rust-g maintainer team"]
+authors = [
+    "Bjorn Neergaard <bjorn@neersighted.com>",
+    "Tad Hardesty <tad@platymuus.com>",
+    "rust-g maintainer team",
+]
 repository = "https://github.com/tgstation/rust-g"
 license = "MIT"
 description = "Offloaded task library for the /tg/ Space Station 13 codebase"
@@ -31,8 +35,13 @@ hex = { version = "0.4", optional = true }
 percent-encoding = { version = "2.3", optional = true }
 url-dep = { version = "2.5", package = "url", optional = true }
 png = { version = "0.17", optional = true }
-image = { version = "0.25", optional = true, default-features = false, features = ["png"] }
-gix = { version = "0.72", optional = true, default-features = false, features = ["revision", "max-performance-safe"] }
+image = { version = "0.25", optional = true, default-features = false, features = [
+    "png",
+] }
+gix = { version = "0.72", optional = true, default-features = false, features = [
+    "revision",
+    "max-performance-safe",
+] }
 noise = { version = "0.9", optional = true }
 redis = { version = "0.32", optional = true, features = ["ahash"] }
 ureq = { version = "2.12", optional = true }
@@ -52,7 +61,9 @@ num-integer = { version = "0.1.46", optional = true }
 dmi = { version = "0.4.0", optional = true }
 tracy_full = { version = "1.11.0", optional = true }
 ammonia = { version = "4.1", optional = true }
-fast_poisson = { version = "1.0.2", optional = true, features = ["single_precision"] }
+fast_poisson = { version = "1.0.2", optional = true, features = [
+    "single_precision",
+] }
 symphonia = { version = "0.5.4", optional = true, features = ["all-codecs"] }
 caith = { version = "4.2.4", optional = true }
 uuid = { version = "1.17", optional = true, features = ["v4", "v7", "fast-rng"] }
@@ -61,7 +72,28 @@ dhat = "0.3"
 ctor = "0.4"
 
 [features]
-default = ["vanderlin"]
+default = [
+    "acreplace",
+    "batchnoise",
+    "cellularnoise",
+    "dmi",
+    "file",
+    "git",
+    "hash",
+    "http",
+    "iconforge",
+    "json",
+    "log",
+    "noise",
+    "pathfinder",
+    "rustls_tls",
+    "sanitize",
+    "sound_len",
+    "sql",
+    "time",
+    "toml",
+    "url",
+]
 
 # only stuff needed for vanderlin [as far as i can tell]
 vanderlin = ["http", "sql", "log", "time", "git", "file", "dmi"]
@@ -103,9 +135,32 @@ cellularnoise = ["rand", "rayon"]
 dmi = ["png", "image"]
 file = []
 git = ["gix", "chrono"]
-hash = ["base64", "const-random", "md-5", "hex", "sha-1", "sha2", "twox-hash", "serde", "serde_json"]
+hash = [
+    "base64",
+    "const-random",
+    "md-5",
+    "hex",
+    "sha-1",
+    "sha2",
+    "twox-hash",
+    "serde",
+    "serde_json",
+]
 http = ["ureq", "serde", "serde_json", "once_cell", "jobs"]
-iconforge = ["dashmap", "dep:dmi", "hash", "image", "jobs", "once_cell", "png", "rayon", "serde", "serde_json", "tracy_full", "twox-hash"]
+iconforge = [
+    "dashmap",
+    "dep:dmi",
+    "hash",
+    "image",
+    "jobs",
+    "once_cell",
+    "png",
+    "rayon",
+    "serde",
+    "serde_json",
+    "tracy_full",
+    "twox-hash",
+]
 json = ["serde", "serde_json"]
 log = ["chrono"]
 sanitize = ["ammonia", "serde_json"]
