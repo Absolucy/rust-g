@@ -27,7 +27,9 @@ byond_fn!(fn dmi_resize_png(path, width, height, resizetype) {
 });
 
 byond_fn!(fn dmi_icon_states(path) {
-    read_states(path).ok()
+    read_states(path)
+        .inspect_err(|err| eprintln!("dmi_icon_states({path}) errored: {err}"))
+        .ok()
 });
 
 fn strip_metadata(path: &str) -> Result<()> {
